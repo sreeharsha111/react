@@ -1,92 +1,76 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import './App.css';
-import firebase from './Firebase';
+import { Layout, Avatar, Menu, Icon, Breadcrumb, Button } from 'antd';
+import Title from 'antd/lib/typography/Title';
+import SubMenu from 'antd/lib/menu/SubMenu';
+////import firebase from './Firebase';
+
+
+const { Header, Footer, Sider, Content } = Layout;
 
 class App extends Component {
-  constructor(props) {
+ /* constructor(props){
     super(props);
-    this.ref = firebase.firestore().collection('boards');
-    this.unsubscribe = null;
-    this.state = {
-      boards: []
+    this.ref=firebase.firestore.collection('slot');
+    this.unsubscribe=null;
+    this.state={
+      slots:[]
     };
   }
 
-  onCollectionUpdate = (querySnapshot) => {
-    const boards = [];
-    querySnapshot.forEach((doc) => {
-      const { title, description, author } = doc.data();
-      boards.push({
-        key: doc.id,
-        doc, // DocumentSnapshot
-        title,
-        description,
-        author,
-      });
-    });
-    this.setState({
-      boards
-   });
-  }
- async deleteCollection() {
-    
-    await firebase.firestore().collection('boards').get().then(snap => {
-    
-       for(let i=0; i< snap.size; i++ )   {
-          firebase.firestore().collection('boards').doc(i.id).delete();
-       }
-     });
-} 
+  count(){
+    firebase.firestore().collection('slot').get().then(snap =>{
+      console.log(snap.size);
+    })
 
-count(){
-firebase.firestore().collection('boards').get().then(snap => {
- // s = snap.size // will return the collection size
-  console.log(snap.size)
-});
+  }*/
+ render(){
+  return (
+    <div className="App">
+      <Layout>
+        <Header style={{ padding: 10}}>
+          <Avatar style={{ float: 'right' }} src='./dp.png' />
+          <Title style={{ color: 'white' }} level={3}>CarParking App</Title>
+        </Header>
+        <Layout>
+          <Sider>
+            <Menu
+              defaultSelectedKeys={['Dashboard']}
+              mode="inline"
+            >
+              <Menu.Item key='Dashboard'>
+                Dashboard
+            </Menu.Item>
+              <SubMenu
+                title={
+                  <span>
+                    <Icon type="mail" />
+                    <span>About US</span>
+                  </span>
+                }
+              >
+                
+              </SubMenu>
+                
+                  
+            </Menu>
+          </Sider>
+          <Layout>
+            <Content style={{ padding: '0 50px' }}>
+              <Breadcrumb style={{ margin: '16px 0' }}>
+                <Breadcrumb.Item>Home/Dashboard</Breadcrumb.Item>
+              </Breadcrumb>
+              <div style={{ background: '#fff', padding: 24, minHeight: 580 }}>
+                <button onclick={this.count}>delete</button>
+              </div>
+            </Content>
+   
+            <Footer style={{ textAlign: 'center' }}>myapp</Footer>
+          </Layout>
+        </Layout>
+      </Layout>
+    </div>
+  );
 }
-
-  
-  componentDidMount() {
-    this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
-  }
-
-  render() {
-    return (
-      <div class="container">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">
-              BOARD LIST
-            </h3>
-          </div>
-          <div class="panel-body">
-            <h4><Link to="/create">Add Board</Link></h4>
-            <table class="table table-stripe">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Description</th>
-                  <th>Author</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.boards.map(board =>
-                  <tr>
-                    <td><Link to={`/show/${board.key}`}>{board.title}</Link></td>
-                    <td>{board.description}</td>
-                    <td>{board.author}</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <button onClick={this.deleteCollection}>Click Me</button>;
-            <button onClick={this.count}>count</button>;
-          </div>
-        </div>
-      </div>
-    );
-  }
 }
-
-export default App;
+export default App; 
