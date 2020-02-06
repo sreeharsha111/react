@@ -1,84 +1,92 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import './App.css';
-import { Layout, Avatar, Menu, Icon, Breadcrumb, Button } from 'antd';
-import Title from 'antd/lib/typography/Title';
-import SubMenu from 'antd/lib/menu/SubMenu';
 import firebase from './Firebase';
 
-const { Header, Footer, Sider, Content } = Layout;
-const carparking=document.querySelector('#slot');
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.ref = firebase.firestore().collection('boards');
+    this.unsubscribe = null;
+    this.state = {
+      boards: []
+    };
+  }
 
-function App(doc) {
-  let li =document.createElement('li');
-  let del=document.createElement('div');   
+  onCollectionUpdate = (querySnapshot) => {
+    const boards = [];
+    querySnapshot.forEach((doc) => {
+      const { title, description, author } = doc.data();
+      boards.push({
+        key: doc.id,
+        doc, // DocumentSnapshot
+        title,
+        description,
+        author,
+      });
+    });
+    this.setState({
+      boards
+   });
+  }
+ async deleteCollection() {
+    
+    await firebase.firestore().collection('boards').get().then(snap => {
+    
+       for(let i=0; i< snap.size; i++ )   {
+          firebase.firestore().collection('boards').doc(i.id).delete();
+       }
+     });
+} 
 
-  li.setAttribute('data-id',doc.id);
-  del.textContent=Button;
-
-  carparking.appendChild(li);
-
-  //delete function
-  /*deleteCollection('slot') {
-    firebase.firestore().collection('slot').listDocuments().then(val => {
-        val.map((val) => {
-            val.delete()
-        })
-    })
-}*/
-
+count(){
+firebase.firestore().collection('boards').get().then(snap => {
+ // s = snap.size // will return the collection size
+  console.log(snap.size)
+});
+}
 
   
+  componentDidMount() {
+    this.unsubscribe = this.ref.onSnapshot(this.onCollectionUpdate);
+  }
 
-  return (
-    <div className="App">
-     <Layout>
-     <Header style={{padding:10,background:'skyblue'}}>
-     <Avatar style={{float:'right'}} src="./vk1.png" />
-     <Title style={{color:'white'}} level={3}>carparking</Title>
-     </Header>
-      <Layout>
-         <Sider style={{background:'grey'}} >
-           <Menu
-           style={{background:'grey'}}
-            defaultSelectedKeys={['Dashboard`']}
-            mode="inline">
-             <Menu.Item key='Dashboard'>
-               Dashboard
-             </Menu.Item>
-             <SubMenu  
-          title={
-            <span>
-              <Icon type="mail" />
-              <span>about us</span>
-            </span>
-          }
-          >
-               <Menu.ItemGroup style={{background:'grey'}} key='country' title='country'>
-                 <Menu.Item key='location 1'>location1</Menu.Item>
-                 <Menu.Item key='location 2'>location2</Menu.Item>
-               </Menu.ItemGroup>
-             </SubMenu>
-           </Menu>
-         </Sider>
-        <Layout> 
-        <Content style={{ padding: '0 50px' }}>
-         
-          <Breadcrumb style={{ margin: '16px 0' }}>
-           <Breadcrumb.Item key='Home'>Home</Breadcrumb.Item>
-           <Breadcrumb.Item >Dashboard</Breadcrumb.Item>
-        
-      </Breadcrumb>
-      <div style={{ background: '#fff', padding: 24, minHeight: 500 }}> 
-      <Button >delete</Button></div>
-    </Content>   
-    <Footer style={{ textAlign: 'center' }}>Ant Design  Created by software ag</Footer>
-         </Layout>
-       </Layout>  
-    </Layout>
-
- 
-    </div>
-  );
+  render() {
+    return (
+      <div class="container">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              BOARD LIST
+            </h3>
+          </div>
+          <div class="panel-body">
+            <h4><Link to="/create">Add Board</Link></h4>
+            <table class="table table-stripe">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Author</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.boards.map(board =>
+                  <tr>
+                    <td><Link to={`/show/${board.key}`}>{board.title}</Link></td>
+                    <td>{board.description}</td>
+                    <td>{board.author}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <button onClick={this.deleteCollection}>Click Me</button>;
+            <button onClick={this.count}>count</button>;
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default App;
